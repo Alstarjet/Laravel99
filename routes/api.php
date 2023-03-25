@@ -26,5 +26,13 @@ Route::get('/saludo', function () {
 Route::get('/users', [UserController::class, 'index']);
 Route::post('/user', [UserController::class, 'store']);
 Route::post('/order', [OrderController::class, 'store']);
+Route::get('/orderfind/{numero}', [OrderController::class, 'show']);
+Route::get('/orders', [OrderController::class, 'index']);
+Route::post('/order/update', [OrderController::class, 'update']);
+Route::post('/order/cancel', [OrderController::class, 'cancel']);
+Route::get('/order/{numero}', [OrderController::class, 'index']);
+
+
+
 
 
