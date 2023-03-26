@@ -24,6 +24,9 @@ Route::middleware('auth:sanctum')->get('/userr', function (Request $request) {
 Route::middleware(['jwt.auth'])->group(function () {
     Route::get('/profile', [UserController::class, 'profile']);
     Route::post('/order', [OrderController::class, 'store']);
+    Route::get('/orders', [OrderController::class, 'index']);
+    Route::get('/orderfind/{numero}', [OrderController::class, 'show']);
+
 });
 
 Route::get('/saludo', function () {
@@ -31,6 +34,12 @@ Route::get('/saludo', function () {
 });
 Route::get('/users', [UserController::class, 'index']);
 Route::post('/user', [UserController::class, 'store']);
+Route::get('/orders', [OrderController::class, 'index']);
+Route::post('/order/update', [OrderController::class, 'update']);
+Route::post('/order/cancel', [OrderController::class, 'cancel']);
+
+
+
 
 
 
