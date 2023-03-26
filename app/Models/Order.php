@@ -13,6 +13,8 @@ class Order extends Model
     protected $fillable = [
         'lat',
         'lon',
+        'd_lat',
+        'd_lon',
         'address',
         'zipcode',
         'ext_num',
@@ -24,5 +26,9 @@ class Order extends Model
     public function products()
     {
         return $this->hasMany(Product::class);
+    }
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }

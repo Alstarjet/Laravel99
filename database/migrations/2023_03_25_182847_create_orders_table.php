@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id();
             $table->float('lat');
             $table->float('lon');
+            $table->float('d_lat');
+            $table->float('d_lon');
             $table->string('address');
             $table->integer('zipcode');
             $table->integer('ext_num');

@@ -15,7 +15,19 @@ class OrderController extends Controller
 {
     public function index()
     {
-        $users = Order::all();
+        $user = Auth::user();
+        if ($user->type == 'admin') {
+            $users = Order::all();
+            $userF = array();
+            foreach ($users as $user) {
+                $productos = Product::where('order_id', $user->id)->select('size')->get();
+                $orden = ["orden" => $user, "Productos" => $productos];
+                array_push($userF, $orden);
+            }
+            Log::info('paso admin');
+            return response()->json($userF);
+        }
+        $users = Order::where('user_id', $user->id)->get();
         $userF = array();
         foreach ($users as $user) {
             $productos = Product::where('order_id', $user->id)->select('size')->get();
@@ -26,11 +38,13 @@ class OrderController extends Controller
     }
     public function store(Request $request)
     {
-        
+
         try {
             $request->validate([
                 'lat' => 'required|numeric',
                 'lon' => 'required|numeric',
+                'd_lat' => 'required|numeric',
+                'd_lon' => 'required|numeric',
                 'address' => 'required|string|max:255',
                 'zipcode' => 'required|integer',
                 'ext_num' => 'required|integer',
@@ -44,16 +58,18 @@ class OrderController extends Controller
                 }
             }
             // Crea una nueva orden
-            $user=Auth::user();
+            $user = Auth::user();
             $order = Order::create([
                 'lat' => $request->lat,
                 'lon' => $request->lon,
+                'd_lat' => $request->d_lat,
+                'd_lon' => $request->d_lon,
                 'address' => $request->address,
                 'zipcode' => $request->zipcode,
                 'ext_num' => $request->ext_num,
                 'int_num' => $request->int_num,
                 'status' => "creado",
-                'user_id'=>$user->id,
+                'user_id' => $user->id,
             ]);
             Log::info($order);
             foreach ($request->products as $productData) {
@@ -79,6 +95,10 @@ class OrderController extends Controller
                 'id' => 'integer|required|exists:orders,id',
             ]);
             $orden = Order::find($request->id);
+            $user = Auth::user();
+            if ($user->type!='admin' && $orden->user_id!=$user->id){
+                return response()->json(['message' => 'No tines acceso para actualizar esta orden'], 401);
+            }
             switch ($orden->status) {
                 case 'creado':
                     $orden->status = 'recolectado';
@@ -115,14 +135,19 @@ class OrderController extends Controller
                 'id' => 'integer|required|exists:orders,id',
             ]);
             $orden = Order::find($request->id);
+            $user = Auth::user();
+            if ($user->type!='admin' && $orden->user_id!=$user->id){
+                return response()->json(['message' => 'No tines acceso a esta orden'], 401);
+            }
             $fecha_actual = Carbon::now();
             $fecha1 = Carbon::parse($fecha_actual);
             $fecha2 = Carbon::parse($orden->created_at);
-            $diferencia = $fecha2->diffInMinutes($fecha1,true);
-            $reembolso ='Se realizara el rembolso';
-            if ($diferencia>2){
-                $reembolso='Ya no fuiste agredor al rembolso timepo limite 2 min';
-            };
+            $diferencia = $fecha2->diffInMinutes($fecha1, true);
+            $reembolso = 'Se realizara el rembolso';
+            if ($diferencia > 2) {
+                $reembolso = 'Ya no fuiste agredor al rembolso timepo limite 2 min';
+            }
+            ;
 
             switch ($orden->status) {
                 case 'creado':
@@ -146,15 +171,20 @@ class OrderController extends Controller
                 default:
                     return response()->json(['message' => 'Error no Identificado'], 400);
             }
-            return response()->json(['cancelacion'=>$reembolso,'message' => $orden]);
+            return response()->json(['cancelacion' => $reembolso, 'message' => $orden]);
         } catch (ValidationException $e) {
             return response()->json(['message' => 'Error en los datos enviados', 'errors' => $e->errors()], 422);
         }
     }
-    public function show($numero){
+    public function show($numero)
+    {
         $orden = Order::find($numero);
-        if ($orden==null){
-            return response()->json(['message' => "la orden no existe"],400);
+        if ($orden == null) {
+            return response()->json(['message' => "La orden no existe"], 400);
+        }
+        $user = Auth::user();
+        if ($user->type!='admin' && $orden->user_id!=$user->id){
+            return response()->json(['message' => 'No tines acceso a esta orden'], 401);
         }
         return response()->json(['tuya' => $orden]);
     }

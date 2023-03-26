@@ -22,21 +22,21 @@ Route::middleware('auth:sanctum')->get('/userr', function (Request $request) {
     return $request->user();
 });
 Route::middleware(['jwt.auth'])->group(function () {
-    Route::get('/profile', [UserController::class, 'profile']);
+    //Crear una orden
     Route::post('/order', [OrderController::class, 'store']);
+    //Optiene la lista de ordenes
     Route::get('/orders', [OrderController::class, 'index']);
-    Route::get('/orderfind/{numero}', [OrderController::class, 'show']);
-
+    //Optiene una orden por su ID
+    Route::get('/order/{numero}', [OrderController::class, 'show']);
+    //Actualiza el estado de una orden
+    Route::post('/order/update', [OrderController::class, 'update']);
+    //Cancela una orden
+    Route::post('/order/cancel', [OrderController::class, 'cancel']);
+    //optienes una lista de usuarios
+    Route::get('/users', [UserController::class, 'index']);
 });
 
-Route::get('/saludo', function () {
-    return response()->json(['mensaje' => '¡Hola desde Laravel API!']);
-});
-Route::get('/users', [UserController::class, 'index']);
 Route::post('/user', [UserController::class, 'store']);
-Route::get('/orders', [OrderController::class, 'index']);
-Route::post('/order/update', [OrderController::class, 'update']);
-Route::post('/order/cancel', [OrderController::class, 'cancel']);
 
 
 
