@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\AuthController;
 
 
 /*
@@ -17,14 +18,20 @@ use App\Http\Controllers\OrderController;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+Route::middleware('auth:sanctum')->get('/userr', function (Request $request) {
     return $request->user();
 });
+Route::middleware(['jwt.auth'])->group(function () {
+    Route::get('/profile', [UserController::class, 'profile']);
+    Route::post('/order', [OrderController::class, 'store']);
+});
+
 Route::get('/saludo', function () {
     return response()->json(['mensaje' => '¡Hola desde Laravel API!']);
 });
 Route::get('/users', [UserController::class, 'index']);
 Route::post('/user', [UserController::class, 'store']);
-Route::post('/order', [OrderController::class, 'store']);
 
 
+
+Route::post('login', [AuthController::class, 'login']);

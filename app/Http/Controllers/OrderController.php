@@ -7,13 +7,14 @@ use App\Models\Product;
 use App\Models\Order;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
 
 class OrderController extends Controller
 {
     public function store(Request $request)
     {
-        Log::info($request);
+        
         try {
             $request->validate([
                 'lat' => 'required|numeric',
@@ -31,6 +32,7 @@ class OrderController extends Controller
                 }
             }
             // Crea una nueva orden
+            $user=Auth::user();
             $order = Order::create([
                 'lat' => $request->lat,
                 'lon' => $request->lon,
@@ -39,6 +41,7 @@ class OrderController extends Controller
                 'ext_num' => $request->ext_num,
                 'int_num' => $request->int_num,
                 'status' => "creado",
+                'user_id'=>$user->id,
             ]);
             Log::info($order);
             foreach ($request->products as $productData) {

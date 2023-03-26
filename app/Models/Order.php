@@ -18,6 +18,7 @@ class Order extends Model
         'ext_num',
         'int_num',
         'status',
+        'user_id',
     ];
 
     public function products()
